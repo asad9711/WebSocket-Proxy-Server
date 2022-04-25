@@ -51,22 +51,17 @@ func HTTPProxyHandler(res http.ResponseWriter, req *http.Request) {
 	proxy.ServeHTTP(res, req)
 }
 
+var TargetURL string
+
 func ProxyHandler(res http.ResponseWriter, req *http.Request) {
 
 	var upgrader = websocket.Upgrader{} // use default options
 
 	log.Println("req method - ", req.Method)
 	urlParams := req.URL.Query()
-	// urlParamsString, _ := json.Marshal(urlParams["capabilities"][0])
-	// log.Println("urlParamString: - ", string(urlParamsString))
 
 	urlEncodedURL := urlParams.Encode()
-	// log.Println("urlEncodedURL --> ", urlEncodedURL)
-
-	// wsurl := "wss://stage-cdp.lambdatest.com/playwright?capabilities=" + urlEncodedURL
-	wsurl := "ws://asad-cdp.dev.lambdatest.io:31333/playwright?" + urlEncodedURL
-	log.Println("urlEncodedURL --> ", wsurl)
-	// return
+	wsurl := TargetURL + urlEncodedURL
 
 	clientAndProxyWSConnection, err := upgrader.Upgrade(res, req, nil)
 	if err != nil {
@@ -80,10 +75,6 @@ func ProxyHandler(res http.ResponseWriter, req *http.Request) {
 
 	var wsDebugURL string
 	wsDebugURL = wsurl
-	// wsDebugURL = `wss://stage-cdp.lambdatest.com/playwright?capabilities=${encodeURIComponent(JSON.stringify(capabilities))}`
-
-	// wsDebugURL = "ws://127.0.0.1:9222/devtools/browser/e9b28929-ee14-4506-bb40-383926ba45fa"
-
 	proxyToBrowserWSConnection, _, err := wsDialer.Dial(wsDebugURL, nil)
 	if err != nil {
 		msg := fmt.Sprintf("could not connect to browser WS debug url %s, got: %v", wsDebugURL, err)

@@ -23,12 +23,18 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		portNumberRequested, _ := cmd.Flags().GetString("port")
 		// fmt.Println("start called, with port   ", portNumberRequested)
+		targetServer, _ := cmd.Flags().GetString("target")
+
+		// set target server address
+		server_logic.TargetURL = targetServer
 		server_logic.SetupRouteAndStartServer(portNumberRequested)
 	},
 }
 
 func init() {
 	startCmd.PersistentFlags().String("port", "", "port number to start the proxy server at")
+	startCmd.PersistentFlags().String("target", "", "target url")
+	startCmd.MarkFlagRequired("target")
 
 	rootCmd.AddCommand(startCmd)
 	// fmt.Println("start called, with args  ")
